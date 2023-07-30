@@ -1,0 +1,285 @@
+{
+    "client": "Thunder Client",
+    "collectionName": "Goats",
+    "dateExported": "2023-07-30T11:24:57.336Z",
+    "version": "1.1",
+    "folders": [],
+    "requests": [
+        {
+            "_id": "9ff084c2-42fa-448e-8bfd-fedccd744a3b",
+            "colId": "3508e1eb-1e7e-4821-a9e9-29f7eae09744",
+            "containerId": "",
+            "name": "CreateUser",
+            "url": "http://localhost:8000/api/users/",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2023-07-26T09:37:22.548Z",
+            "modified": "2023-07-29T06:53:50.291Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "formdata",
+                "raw": "",
+                "form": [
+                    {
+                        "name": "type",
+                        "value": "Buyer"
+                    },
+                    {
+                        "name": "name",
+                        "value": "Don"
+                    }
+                ]
+            },
+            "tests": []
+        },
+        {
+            "_id": "3b5745fa-2169-4b93-88ea-1ca66b9381ba",
+            "colId": "3508e1eb-1e7e-4821-a9e9-29f7eae09744",
+            "containerId": "",
+            "name": "GetUsers",
+            "url": "http://localhost:8000/api/users/",
+            "method": "GET",
+            "sortNum": 30000,
+            "created": "2023-07-26T09:38:36.310Z",
+            "modified": "2023-07-26T09:38:51.392Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "f72eba16-70c5-4caa-a30e-abd5e553a2e9",
+            "colId": "3508e1eb-1e7e-4821-a9e9-29f7eae09744",
+            "containerId": "",
+            "name": "CreateGoat",
+            "url": "http://localhost:8000/api/goats/",
+            "method": "POST",
+            "sortNum": 40000,
+            "created": "2023-07-26T09:39:08.985Z",
+            "modified": "2023-07-26T09:39:45.943Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "formdata",
+                "raw": "",
+                "form": [
+                    {
+                        "name": "sex",
+                        "value": "Male"
+                    },
+                    {
+                        "name": "weight",
+                        "value": "50"
+                    }
+                ]
+            },
+            "tests": []
+        },
+        {
+            "_id": "6a9e54e2-b4f3-4369-8246-838cba83722d",
+            "colId": "3508e1eb-1e7e-4821-a9e9-29f7eae09744",
+            "containerId": "",
+            "name": "GetGoats",
+            "url": "http://localhost:8000/api/goats/",
+            "method": "GET",
+            "sortNum": 50000,
+            "created": "2023-07-26T09:40:24.562Z",
+            "modified": "2023-07-26T09:40:34.734Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "794b9ec1-f127-40c9-a09a-09d82220fcfc",
+            "colId": "3508e1eb-1e7e-4821-a9e9-29f7eae09744",
+            "containerId": "",
+            "name": "CreateLoad",
+            "url": "",
+            "method": "GET",
+            "sortNum": 60000,
+            "created": "2023-07-26T09:40:45.887Z",
+            "modified": "2023-07-26T09:40:45.887Z",
+            "headers": []
+        },
+        {
+            "_id": "01e6ef1c-95b7-46ec-af92-6cc05d6d5d76",
+            "colId": "3508e1eb-1e7e-4821-a9e9-29f7eae09744",
+            "containerId": "",
+            "name": "GetLoads",
+            "url": "http://localhost:8000/api/loads/",
+            "method": "GET",
+            "sortNum": 70000,
+            "created": "2023-07-26T10:08:13.281Z",
+            "modified": "2023-07-26T10:08:25.392Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "338c9328-3807-4185-9834-70c89c9593ea",
+            "colId": "3508e1eb-1e7e-4821-a9e9-29f7eae09744",
+            "containerId": "",
+            "name": "CreateSale",
+            "url": "",
+            "method": "GET",
+            "sortNum": 90000,
+            "created": "2023-07-26T10:08:55.215Z",
+            "modified": "2023-07-26T10:08:55.215Z",
+            "headers": []
+        },
+        {
+            "_id": "8571a732-a9cd-427c-92fa-55e7ded1d32c",
+            "colId": "3508e1eb-1e7e-4821-a9e9-29f7eae09744",
+            "containerId": "",
+            "name": "GetSales",
+            "url": "http://localhost:8000/api/sales/",
+            "method": "GET",
+            "sortNum": 100000,
+            "created": "2023-07-26T10:09:40.327Z",
+            "modified": "2023-07-26T10:09:54.533Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "8500ba40-9c1c-48c1-92a8-b4d87c417a86",
+            "colId": "3508e1eb-1e7e-4821-a9e9-29f7eae09744",
+            "containerId": "",
+            "name": "SellerSellingToAgent",
+            "url": "http://localhost:8000/api/seller-selling-to-agent/",
+            "method": "POST",
+            "sortNum": 110000,
+            "created": "2023-07-26T13:25:34.368Z",
+            "modified": "2023-07-28T08:56:21.585Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"seller_id\": 4,\n  \"agent\": 3,\n  \"paid_amount\": 1000\n}\n",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "270e2d85-b745-4abf-b368-d866eea3f5d9",
+            "colId": "3508e1eb-1e7e-4821-a9e9-29f7eae09744",
+            "containerId": "",
+            "name": "CreateGoatsBySeller",
+            "url": "http://localhost:8000/api/seller-create-goat/",
+            "method": "POST",
+            "sortNum": 120000,
+            "created": "2023-07-26T13:36:02.307Z",
+            "modified": "2023-07-29T11:14:54.733Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"goats\": [\n    {\n      \"sex\": \"Male\",\n      \"weight\": 90\n    },\n    {\n      \"sex\": \"Female\",\n      \"weight\": 210\n    },\n    {\n      \"sex\": \"Female\",\n      \"weight\": 20\n    },\n    {\n      \"sex\": \"Male\",\n      \"weight\": 81\n    }\n  ],\n  \"seller_id\":1\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "01fe8065-ed0b-4be0-bef1-a35fc8555994",
+            "colId": "3508e1eb-1e7e-4821-a9e9-29f7eae09744",
+            "containerId": "",
+            "name": "SplitOperation",
+            "url": "http://localhost:8000/api/agent-merge-split/1/",
+            "method": "PUT",
+            "sortNum": 130000,
+            "created": "2023-07-26T19:28:40.222Z",
+            "modified": "2023-07-28T05:12:44.510Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"split\": {\n    \"from_agent_id\": 2,\n    \"to_agent_ids\": [2,3]\n  }\n}\n",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "152b7741-82b7-4fed-ab7f-a7a8b692d9a5",
+            "colId": "3508e1eb-1e7e-4821-a9e9-29f7eae09744",
+            "containerId": "",
+            "name": "MergeOperation",
+            "url": "http://localhost:8000/api/agent-merge-split/1/",
+            "method": "PUT",
+            "sortNum": 140000,
+            "created": "2023-07-27T05:36:01.005Z",
+            "modified": "2023-07-28T08:56:40.086Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"merge\": {\n    \"to_agent_id\": 2,\n    \"from_agent_ids\": [2,3]\n  }\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "3048c07c-765b-49e6-90f6-5a2519ad5252",
+            "colId": "3508e1eb-1e7e-4821-a9e9-29f7eae09744",
+            "containerId": "",
+            "name": "GetAgentGoats",
+            "url": "http://localhost:8000/api/agent-goats/3/",
+            "method": "GET",
+            "sortNum": 150000,
+            "created": "2023-07-27T06:48:19.808Z",
+            "modified": "2023-07-29T06:41:56.667Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "f62cc1e4-1279-4f10-86e9-8bb2577712ea",
+            "colId": "3508e1eb-1e7e-4821-a9e9-29f7eae09744",
+            "containerId": "",
+            "name": "AgentSellingToBuyer",
+            "url": "http://localhost:8000/api/agent-selling-to-buyer/",
+            "method": "POST",
+            "sortNum": 160000,
+            "created": "2023-07-27T09:58:05.558Z",
+            "modified": "2023-07-28T09:19:22.310Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "formdata",
+                "raw": "",
+                "form": [
+                    {
+                        "name": "agent_id",
+                        "value": "2"
+                    },
+                    {
+                        "name": "goat_ids",
+                        "value": "5"
+                    },
+                    {
+                        "name": "buyer_id",
+                        "value": "4"
+                    },
+                    {
+                        "name": "amount_paid",
+                        "value": "1300"
+                    }
+                ]
+            },
+            "tests": []
+        },
+        {
+            "_id": "b872ac55-bd97-4414-8de0-7ec45f16b86a",
+            "colId": "3508e1eb-1e7e-4821-a9e9-29f7eae09744",
+            "containerId": "",
+            "name": "GetBuyerGoats",
+            "url": "http://localhost:8000/api/buyer-goats/4",
+            "method": "GET",
+            "sortNum": 170000,
+            "created": "2023-07-28T09:21:07.970Z",
+            "modified": "2023-07-28T09:21:33.106Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        }
+    ]
+}
