@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'goats_app',
     'corsheaders',
+    'knox',
 ]
 
 MIDDLEWARE = [
@@ -132,3 +133,24 @@ CORS_ALLOWED_ORIGINS = [
 ]
 # CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_ALL_ORIGINS = True
+
+AUTH_USER_MODEL = 'goats_app.User'
+
+# AUTHENTICATION_BACKENDS = [
+#     # 'goats_app.authentication_backends.EmailOrUsernameModelBackend',
+#     'django.contrib.auth.backends.ModelBackend',
+# ]
+
+
+
+
+
+REST_FRAMEWORK = {
+    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    # 'PAGE_SIZE': 10,
+     'DEFAULT_AUTHENTICATION_CLASSES': [
+         'knox.auth.TokenAuthentication',
+
+       ]
+}
+

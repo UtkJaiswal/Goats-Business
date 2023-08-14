@@ -7,6 +7,15 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = '__all__'
 
+    def create(self, validated_data):
+        user = User(email=validated_data['email'],
+                    name=validated_data['name'],
+                    type=validated_data['type'],
+                    )
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
+
 class GoatSerializer(serializers.ModelSerializer):
     class Meta:
         model = Goat
@@ -21,3 +30,8 @@ class SalesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sales
         fields = '__all__'
+
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.CharField()
+    password = serializers.CharField()

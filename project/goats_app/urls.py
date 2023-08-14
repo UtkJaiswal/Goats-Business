@@ -10,10 +10,12 @@ from .views import (
     LoadListCreateView,
     SalesListCreateView,
     AgentGoatListView,
-    BuyerGoatListView
+    BuyerGoatListView,
+    Login,
+    Logoutview,
 )
 
-urlpatterns = [
+urlpatterns = [ 
     path('users/', UserListCreateView.as_view(), name='user-list-create'),
     path('goats/', GoatListCreateView.as_view(), name='goat-list-create'),
     path('loads/', LoadListCreateView.as_view(), name='load-list-create'),
@@ -27,6 +29,6 @@ urlpatterns = [
     path('sales/', SalesListCreateView.as_view(), name='sales-list-create'),
     path('agent-goats/<int:agent_id>/', AgentGoatListView.as_view(), name='agent-goat-list'),
     path('buyer-goats/<int:buyer_id>/', BuyerGoatListView.as_view(), name='buyer-goats-list'),
-
-    # Add other URLs as needed...
+    path('login/', Login.as_view(), name='user-login'),
+    path('logout/', Logoutview.as_view(), name='user-logout'),
 ]

@@ -1,13 +1,23 @@
 # goats_app/views.py
 from rest_framework import generics
 from .models import User, Goat, Load, Sales
-from .serializers import UserSerializer, GoatSerializer, LoadSerializer, SalesSerializer
+from .serializers import UserSerializer, GoatSerializer, LoadSerializer, SalesSerializer, LoginSerializer
 from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from django.contrib.auth import authenticate, login, logout
+from knox.views import LoginView as KnoxLoginView
+from knox.views import LogoutView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import permissions
+from .permissions import CanRetrieveUserDetails
+
 
 class UserListCreateView(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
 
 class GoatListCreateView(generics.ListCreateAPIView):
     queryset = Goat.objects.all()
@@ -68,7 +78,7 @@ class AgentGoatListView(generics.ListAPIView):
 
 class SellerSellingToAgentView(generics.CreateAPIView):
     serializer_class = LoadSerializer
-
+    
     def create(self, request, *args, **kwargs):
         seller_id = request.data.get('seller_id')
         agent_id = request.data.get('agent')
@@ -205,4 +215,93 @@ class BuyerGoatListView(generics.ListAPIView):
             return Goat.objects.filter(buyer_id=buyer_id)
         except Goat.DoesNotExist:
             return Goat.objects.none()
+
+class Login(KnoxLoginView):
+    permission_classes = (permissions.AllowAny,)
+    serializer_class = LoginSerializer
+
+    def post(self, request, format=None):
+        serializer = LoginSerializer(data=request.data)
+
+        # print("gg",serializer.is_valid())
+        result = {}
+        result['status'] = 'NOK'
+        result['valid'] = False
+        result['result'] = {"message": "Unauthorized access", "data": []}
+
+        if serializer.is_valid():
+            try:
+                user_data = authenticate(email=serializer.validated_data['email'],
+                                         password=serializer.validated_data['password'])
+                print("uer atsss",user_data)
+
+            except:
+                # Response data
+                result['status'] = 'NOK'
+                result['valid'] = False
+                result['result']['message'] = 'User not present'
+                # Response data
+                return Response(result, status=status.HTTP_204_NO_CONTENT)
+
+            if user_data is not None:
+                user_details = User.objects.all().filter(name=user_data).values('id', 'name', 'email','type'
+                                                                                 
+                                                                                 )
+                # print(user_details)
+                if user_data.is_active:
+                    login(request, user_data)
+                    data = super(Login, self).post(request)
+                    data = data.data
+                    # print(data)
+                    # data['message'] = "Login successfully"
+                    data['user_info'] = user_details
+
+                # Response data
+                result['status'] = "OK"
+                result['valid'] = True
+                result['result']['message'] = "Login successfully"
+                result['result']['data'] = data
+                # result['result']['data'] = data
+                # Response data
+                return Response(result, status=status.HTTP_200_OK)
+            else:
+
+                # Response data
+                result['status'] = "NOK"
+                result['valid'] = False
+                result['result']['message'] = 'Invalid Credentials'
+                # Response data
+                return Response(result, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+        # Response data
+        result['status'] = "NOK"
+        result['valid'] = False
+        result['result']['message'] = (
+                    list(serializer.errors.keys())[0] + ' - ' + list(serializer.errors.values())[0][0]).capitalize()
+        # Response data
+        return Response(result, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+class Logoutview(LogoutView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        result = {}
+        result['status'] = 'NOK'
+        result['valid'] = False
+        result['result'] = {"message": "Unauthorized access", "data": []}
+        if request.user.is_authenticated:
+            try:
+                request._auth.delete()
+            except:
+                # Response data
+                result['status'] = "NOK"
+                result['valid'] = False
+                result['result']['message'] = 'Error while logging out'
+                # Response data
+                return Response(result, status=status.HTTP_200_OK)
+            # Response data
+            result['status'] = "OK"
+            result['valid'] = True
+            result['result']['message'] = 'Logout successfully !'
+            # Response data
+            return Response(result, status=status.HTTP_200_OK)
 
