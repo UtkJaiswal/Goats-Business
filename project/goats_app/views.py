@@ -16,7 +16,6 @@ from knox.models import AuthToken
 
 class UserListCreateView(APIView):
     def get(self, request):
-        auth_header = request.META.get('HTTP_AUTHORIZATION', "")
         permission_classes = [IsAuthenticated]
         try:
             user = request.user
@@ -43,13 +42,15 @@ class UserListCreateView(APIView):
 class GoatListCreateView(APIView):
 
     def get(self, request, format=None):
+        permission_classes = [IsSellerUser]
         goats = Goat.objects.all()
         serializer = GoatSerializer(goats, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
-        serializer = GoatSerializer(data=request.data)
-        permission_classes = [IsSellerUser]
+        data = request.data.copy()  # Create a mutable copy of request.data
+        data['seller_id'] = request.user.id  # Add seller_id to the copy
+        serializer = GoatSerializer(data=data)
 
         if serializer.is_valid():
             serializer.save()
