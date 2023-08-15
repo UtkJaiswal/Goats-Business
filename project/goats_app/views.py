@@ -10,18 +10,48 @@ from knox.views import LoginView as KnoxLoginView
 from knox.views import LogoutView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import permissions
-from .permissions import CanRetrieveUserDetails
+from .permissions import CanRetrieveUserDetails, IsSellerUser
+from knox.models import AuthToken
 
 
-class UserListCreateView(generics.ListCreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+class UserListCreateView(APIView):
+    def get(self, request):
+        auth_header = request.META.get('HTTP_AUTHORIZATION', "")
+        permission_classes = [IsAuthenticated]
+
+        if auth_header.startswith('Token '):
+            token = auth_header.split(' ')[1]
+            try:
+                token_prefix = token[:8]
+                matching_tokens = AuthToken.objects.filter(token_key=token_prefix)
+                if matching_tokens.exists():
+                    user_id = matching_tokens[0].user_id
+                    user = User.objects.get(id=user_id)
+                    if user:
+                        user_data = {
+                            'email': user.email,
+                            'name': user.name,
+                            'type': user.type,
+                        }
+                        return Response(user_data)
+            except AuthToken.DoesNotExist:
+                pass
+        return Response({'detail': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    def post(self, request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class GoatListCreateView(generics.ListCreateAPIView):
     queryset = Goat.objects.all()
     serializer_class = GoatSerializer
+    permission_classes = [IsSellerUser]
+    
 
 class LoadListCreateView(generics.ListCreateAPIView):
     queryset = Load.objects.all()
@@ -233,7 +263,6 @@ class Login(KnoxLoginView):
             try:
                 user_data = authenticate(email=serializer.validated_data['email'],
                                          password=serializer.validated_data['password'])
-                print("uer atsss",user_data)
 
             except:
                 # Response data
@@ -244,10 +273,7 @@ class Login(KnoxLoginView):
                 return Response(result, status=status.HTTP_204_NO_CONTENT)
 
             if user_data is not None:
-                user_details = User.objects.all().filter(name=user_data).values('id', 'name', 'email','type'
-                                                                                 
-                                                                                 )
-                # print(user_details)
+                user_details = User.objects.all().filter(name=user_data).values('id', 'name', 'email','type')
                 if user_data.is_active:
                     login(request, user_data)
                     data = super(Login, self).post(request)
