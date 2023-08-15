@@ -18,24 +18,17 @@ class UserListCreateView(APIView):
     def get(self, request):
         auth_header = request.META.get('HTTP_AUTHORIZATION', "")
         permission_classes = [IsAuthenticated]
-
-        if auth_header.startswith('Token '):
-            token = auth_header.split(' ')[1]
-            try:
-                token_prefix = token[:8]
-                matching_tokens = AuthToken.objects.filter(token_key=token_prefix)
-                if matching_tokens.exists():
-                    user_id = matching_tokens[0].user_id
-                    user = User.objects.get(id=user_id)
-                    if user:
-                        user_data = {
-                            'email': user.email,
-                            'name': user.name,
-                            'type': user.type,
-                        }
-                        return Response(user_data)
-            except AuthToken.DoesNotExist:
-                pass
+        try:
+            user = request.user
+            if user:
+                user_data = {
+                    'email': user.email,
+                    'name': user.name,
+                    'type': user.type,
+                }
+                return Response(user_data)
+        except AuthToken.DoesNotExist:
+            pass
         return Response({'detail': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
     
     def post(self, request):
@@ -47,10 +40,21 @@ class UserListCreateView(APIView):
 
 
 
-class GoatListCreateView(generics.ListCreateAPIView):
-    queryset = Goat.objects.all()
-    serializer_class = GoatSerializer
-    permission_classes = [IsSellerUser]
+class GoatListCreateView(APIView):
+
+    def get(self, request, format=None):
+        goats = Goat.objects.all()
+        serializer = GoatSerializer(goats, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = GoatSerializer(data=request.data)
+        permission_classes = [IsSellerUser]
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
 class LoadListCreateView(generics.ListCreateAPIView):
