@@ -13,11 +13,13 @@ from .views import (
     BuyerGoatListView,
     Login,
     Logoutview,
+    GoatListForAgentView
 )
 
 urlpatterns = [ 
     path('users/', UserListCreateView.as_view(), name='user-list-create'),
     path('goats/', GoatListCreateView.as_view(), name='goat-list-create'),
+    path('goatsforagent/', GoatListForAgentView.as_view(), name='goat-list-for-agent'),
     path('loads/', LoadListCreateView.as_view(), name='load-list-create'),
     path('sales/', SalesListCreateView.as_view(), name='sales-list-create'),
     path('seller-create-goat/', SellerCreateGoatView.as_view(), name='seller-create-goat'),

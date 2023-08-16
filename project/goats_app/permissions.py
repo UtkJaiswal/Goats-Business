@@ -9,10 +9,16 @@ class CanRetrieveUserDetails(permissions.BasePermission):
                 return True
             return request.user.is_authenticated
         elif request.method == 'POST':
-            return True  # Allow anyone to create a user
+            return True
         return False
     
 class IsSellerUser(permissions.BasePermission):
     def has_permission(self, request, view):
         user = request.user
-        return user.type == 'Seller'
+        return (user.type == 'Seller' and request.user and request.user.is_authenticated)
+    
+
+class IsAgentUser(permissions.BasePermission):
+    def has_permission(self, request, view):
+        user = request.user
+        return user.type == 'Agent'

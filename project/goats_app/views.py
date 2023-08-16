@@ -1,4 +1,3 @@
-# goats_app/views.py
 from rest_framework import generics
 from .models import User, Goat, Load, Sales
 from .serializers import UserSerializer, GoatSerializer, LoadSerializer, SalesSerializer, LoginSerializer
@@ -10,7 +9,7 @@ from knox.views import LoginView as KnoxLoginView
 from knox.views import LogoutView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import permissions
-from .permissions import CanRetrieveUserDetails, IsSellerUser
+from .permissions import *
 from knox.models import AuthToken
 
 
@@ -42,25 +41,63 @@ class UserListCreateView(APIView):
 class GoatListCreateView(APIView):
 
     def get(self, request, format=None):
-        permission_classes = [IsSellerUser]
-        goats = Goat.objects.all()
-        serializer = GoatSerializer(goats, many=True)
-        return Response(serializer.data)
+        # permission_classes = [IsAuthenticated]
+        user = request.user
+        if user and request.user.type == "Seller":
+            goats = Goat.objects.all()
+            serializer = GoatSerializer(goats, many=True)
+            return Response(serializer.data)
+        return Response(status=status.HTTP_403_FORBIDDEN)
+
 
     def post(self, request, format=None):
-        data = request.data.copy()  # Create a mutable copy of request.data
-        data['seller_id'] = request.user.id  # Add seller_id to the copy
-        serializer = GoatSerializer(data=data)
+        # permission_classes = [IsSellerUser]
+        user = request.user
+        if  user and request.user.type == "Seller":
+            data = request.data.copy()
+            data['seller_id'] = request.user.id  
+            serializer = GoatSerializer(data=data)
 
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+class GoatListForAgentView(APIView):
 
-class LoadListCreateView(generics.ListCreateAPIView):
-    queryset = Load.objects.all()
-    serializer_class = LoadSerializer
+    def get(self, request, format=None):
+        # permission_classes = [IsAgentUser]
+        user = request.user
+        if user.id and request.user.type == "Agent":
+            goats = Goat.objects.all()
+            serializer = GoatSerializer(goats, many=True)
+            return Response(serializer.data)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+    
+
+class LoadListCreateView(APIView):
+    
+    # permission_classes = [IsAgentUser]
+    
+    def get(self, request, format=None):
+        user = request.user
+        if user.id and request.user.type == "Agent":
+            loads = Load.objects.all()
+            serializer = LoadSerializer(loads, many=True)
+            return Response(serializer.data)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
+        
+    
+    def post(self, request, format=None):
+        serializer = LoadSerializer(data=request.data)
+        user = request.user
+        if user.id and request.user.type == "Agent":
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 class SalesListCreateView(generics.ListCreateAPIView):
     queryset = Sales.objects.all()
@@ -107,10 +144,6 @@ class AgentGoatListView(generics.ListAPIView):
             return Goat.objects.none()
 
 
-# goats_app/views.py
-
-
-
 class SellerSellingToAgentView(generics.CreateAPIView):
     serializer_class = LoadSerializer
     
@@ -122,10 +155,10 @@ class SellerSellingToAgentView(generics.CreateAPIView):
         seller = User.objects.get(pk=seller_id)
         agent = User.objects.get(pk=agent_id)
 
-        # Create the Load object and set the agent field
+        
         load_data = {
             'seller_id': seller_id,
-            'agent': agent_id,  # Set the agent explicitly
+            'agent': agent_id,
             'paid_amount': paid_amount,
             'due_amount': paid_amount,
         }
