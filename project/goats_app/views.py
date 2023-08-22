@@ -43,7 +43,7 @@ class GoatListCreateView(APIView):
     def get(self, request, format=None):
         # permission_classes = [IsAuthenticated]
         user = request.user
-        if user and request.user.type == "Seller":
+        if user.id and request.user.type == "Seller":
             goats = Goat.objects.all()
             serializer = GoatSerializer(goats, many=True)
             return Response(serializer.data)
@@ -53,7 +53,7 @@ class GoatListCreateView(APIView):
     def post(self, request, format=None):
         # permission_classes = [IsSellerUser]
         user = request.user
-        if  user and request.user.type == "Seller":
+        if  user.id and request.user.type == "Seller":
             data = request.data.copy()
             data['seller_id'] = request.user.id  
             serializer = GoatSerializer(data=data)
@@ -99,77 +99,138 @@ class LoadListCreateView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-class SalesListCreateView(generics.ListCreateAPIView):
-    queryset = Sales.objects.all()
-    serializer_class = SalesSerializer
+class SalesListCreateView(APIView):
+    
+    # permission_classes = [IsAgentUser]
+    
+    def get(self, request, format=None):
+        user = request.user
+        if user.id and user.type == "Agent":
+            sales_entries = Sales.objects.filter(agent=user.id)
+            serializer = SalesSerializer(sales_entries, many=True)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        elif user.id and user.type == "Buyer":
+            sales_entries = Sales.objects.filter(agent=user.id)
+            serializer = SalesSerializer(sales_entries, many=True)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+        else:
+            return Response({'detail': 'You do not have permission to access this data.'}, status=status.HTTP_403_FORBIDDEN)
+    
+    def post(self, request, format=None):
+        user = request.user
+        serializer = SalesSerializer(data=request.data)
+        
+        if user.id and user.type == "Agent":
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message":"Unauthorized user"},status=status.HTTP_200_OK)
+            
 
 
-class SellerCreateGoatView(generics.CreateAPIView):
-    queryset = Goat.objects.all()
+# class SellerCreateGoatView(generics.CreateAPIView):
+#     queryset = Goat.objects.all()
+#     serializer_class = GoatSerializer
+
+#     def create(self, request, *args, **kwargs):
+#         goats_data = request.data.get('goats', [])
+
+#         # Add seller_id to each goat data
+#         for goat_data in goats_data:
+#             goat_data['seller_id'] = request.data.get('seller_id')
+
+#         # Create the Goat objects and associate them with the Load (if needed)
+#         goat_serializer = self.get_serializer(data=goats_data, many=True)
+#         goat_serializer.is_valid(raise_exception=True)
+#         goat_serializer.save()
+
+#         return Response(goat_serializer.data, status=status.HTTP_201_CREATED)
+
+# class AgentGoatListView(generics.ListAPIView):
+#     serializer_class = GoatSerializer
+
+#     def get_queryset(self):
+#         agent_id = self.kwargs['agent_id']
+#         # print("agent id ",agent_id)
+#         try:
+#             all_goats = Goat.objects.all()
+#             queryset = []
+#             for goat in all_goats:
+#                 load = goat.load
+#                 while load.master:
+#                     load = load.master
+#                 goat.agent = load.agent
+#                 # print("goat agent id", goat.agent.id)
+#                 if goat.agent.id == agent_id:
+#                     queryset.append(goat)
+#             return queryset
+#         except User.DoesNotExist:
+#             return Goat.objects.none()
+
+class AgentGoatListView(APIView):
+    
     serializer_class = GoatSerializer
-
-    def create(self, request, *args, **kwargs):
-        goats_data = request.data.get('goats', [])
-
-        # Add seller_id to each goat data
-        for goat_data in goats_data:
-            goat_data['seller_id'] = request.data.get('seller_id')
-
-        # Create the Goat objects and associate them with the Load (if needed)
-        goat_serializer = self.get_serializer(data=goats_data, many=True)
-        goat_serializer.is_valid(raise_exception=True)
-        goat_serializer.save()
-
-        return Response(goat_serializer.data, status=status.HTTP_201_CREATED)
-
-class AgentGoatListView(generics.ListAPIView):
-    serializer_class = GoatSerializer
-
-    def get_queryset(self):
-        agent_id = self.kwargs['agent_id']
-        # print("agent id ",agent_id)
+    
+    def get(self, request, format=None):
         try:
-            all_goats = Goat.objects.all()
-            queryset = []
-            for goat in all_goats:
-                load = goat.load
-                while load.master:
-                    load = load.master
-                goat.agent = load.agent
-                # print("goat agent id", goat.agent.id)
-                if goat.agent.id == agent_id:
-                    queryset.append(goat)
-            return queryset
-        except User.DoesNotExist:
-            return Goat.objects.none()
+            user = request.user
+            if user.id and user.type == "Agent":
+                agent_id = user.id
+                all_goats = Goat.objects.all()
+                queryset = []
+                for goat in all_goats:
+                    load = goat.load
+                    while load.master:
+                        load = load.master
+                    goat.agent = load.agent
+                    if goat.agent.id == agent_id:
+                        queryset.append(goat)
+                serializer = self.serializer_class(queryset, many=True)
+                return Response(serializer.data)
+            else:
+                return Response({"message:Unauthorized user"},status=status.HTTP_401_UNAUTHORIZED)
+        except Goat.DoesNotExist:
+            return Response({'detail': 'No goats found for the agent.'}, status=status.HTTP_404_NOT_FOUND)
+        
 
 
-class SellerSellingToAgentView(generics.CreateAPIView):
+
+class SellerSellingToAgentView(APIView):
+    
     serializer_class = LoadSerializer
     
-    def create(self, request, *args, **kwargs):
-        seller_id = request.data.get('seller_id')
-        agent_id = request.data.get('agent')
-        paid_amount = request.data.get('paid_amount', 0)
+    def post(self, request, format=None):
 
-        seller = User.objects.get(pk=seller_id)
-        agent = User.objects.get(pk=agent_id)
+        user = request.user
+        if user.id and user.type == "Agent":
 
+            seller_id = request.data.get('seller_id')
+            agent_id = request.data.get('agent')
+            paid_amount = request.data.get('paid_amount', 0)
+
+            try:
+                seller = User.objects.get(pk=seller_id)
+                agent = User.objects.get(pk=agent_id)
+                
+                load_data = {
+                    'seller_id': seller_id,
+                    'agent': agent_id,
+                    'paid_amount': paid_amount,
+                    'due_amount': paid_amount,
+                }
+                load_serializer = self.serializer_class(data=load_data)
+                load_serializer.is_valid(raise_exception=True)
+                load = load_serializer.save()
+
+                # Update the load of all the goats belonging to the seller to the newly created load
+                Goat.objects.filter(seller_id=seller_id).update(load=load)
+
+                return Response(load_serializer.data, status=status.HTTP_201_CREATED)
+            except User.DoesNotExist:
+                return Response({'detail': 'Seller or agent not found.'}, status=status.HTTP_404_NOT_FOUND)
         
-        load_data = {
-            'seller_id': seller_id,
-            'agent': agent_id,
-            'paid_amount': paid_amount,
-            'due_amount': paid_amount,
-        }
-        load_serializer = self.get_serializer(data=load_data)
-        load_serializer.is_valid(raise_exception=True)
-        load = load_serializer.save()
-
-        # Update the load of all the goats belonging to the seller to the newly created load
-        Goat.objects.filter(seller_id=seller_id).update(load=load)
-
-        return Response(load_serializer.data, status=status.HTTP_201_CREATED)
+        return Response({"message":"Unauthorized user"},status=status.HTTP_401_UNAUTHORIZED)
 
 
 class AgentMergeSplitView(generics.UpdateAPIView):
